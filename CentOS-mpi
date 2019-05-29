@@ -1,0 +1,46 @@
+Bootstrap: docker
+From: centos:7
+
+%environment
+	source /etc/profile.d/modules.sh
+
+%post
+	yum install -y gcc gcc-c++ gcc-gfortran
+	yum install -y make automake autoconf
+	yum install -y environment-modules
+	yum install -y openmpi openmpi-devel
+	yum install -y openmpi3 openmpi3-devel
+	yum install -y which
+	
+	mkdir -p /opt/software
+	
+	###install openmpi2.1.6
+        mkdir -p /opt/openmpi2.1.6
+        cd /opt
+        tar -xvf /opt/openmpi-2.1.6.tar.gz
+        cd openmpi-2.1.6/
+        ./configure --prefix=/opt/openmpi2.1.6 --enable-mpi-cxx
+        make all
+        make install
+        rm -rf /opt/openmpi-2.1.6 /opt/openmpi-2.1.6.tar.gz
+	
+	###make modulefiles
+	cd /etc/modulefiles/mpi
+	mv openmpi-x86_64 openmpi-1.10.7
+	mv openmpi3-x86_64 openmpi-3.0.2
+	
+	###for openmpi2 modulefiles
+	echo "#%Module1.0" >> openmpi-2.1.6
+	echo "conflict mpi" >> openmpi-2.1.6
+	echo "set             MPI_HOME                /opt/openmpi2.1.6" >> openmpi-2.1.6
+	echo "prepend-path    PATH                    \${MPI_HOME}/bin" >> openmpi-2.1.6
+	echo "prepend-path    LD_LIBRARY_PATH         \${MPI_HOME}/lib64" >> openmpi-2.1.6
+	echo "prepend-path    INCLUDE                 \${MPI_HOME}/include" >> openmpi-2.1.6
+	echo "prepend-path    MANPATH                 \${MPI_HOME}/share/man" >> openmpi-2.1.6
+%help
+	CentOS whith OpenMPI 1.10.7 2.1.6 3.0.2
+
+%files
+	/root/openmpi/openmpi-2.1.6.tar.gz /opt/openmpi-2.1.6.tar.gz
+	
+
