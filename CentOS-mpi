@@ -3,6 +3,7 @@ From: centos:7
 
 %environment
 	source /etc/profile.d/modules.sh
+	module use /etc/modulefiles
 
 %post
 	yum install -y gcc gcc-c++ gcc-gfortran
